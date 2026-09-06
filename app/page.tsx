@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent, type RefObject } from "react";
 
 const stats = [
   { value: "10+", label: "Client applications shipped — functional, responsive, in production" },
@@ -78,8 +78,8 @@ const certifications = [
   "Data Science in Precision Medicine and Cloud Computing — Stanford",
 ];
 
-function useReveal() {
-  const ref = useRef(null);
+function useReveal<T extends HTMLElement>(): [RefObject<T | null>, boolean] {
+  const ref = useRef<T | null>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const el = ref.current;
@@ -99,8 +99,16 @@ function useReveal() {
   return [ref, visible];
 }
 
-function StackGroup({ group, items, index }) {
-  const [ref, visible] = useReveal();
+function StackGroup({
+  group,
+  items,
+  index,
+}: {
+  group: string;
+  items: string[];
+  index: number;
+}) {
+  const [ref, visible] = useReveal<HTMLDivElement>();
   return (
     <div
       ref={ref}
@@ -131,10 +139,10 @@ function StackGroup({ group, items, index }) {
 function ContactForm() {
   const [status, setStatus] = useState("idle");
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("sending");
-    const form = e.target;
+    const form = e.currentTarget;
     const data = new FormData(form);
     try {
       const res = await fetch("https://formspree.io/f/YOUR_FORM_ID", {
@@ -198,7 +206,7 @@ function ContactForm() {
   );
 }
 
-function scrollToSection(id) {
+function scrollToSection(id: string) {
   const el = typeof document !== "undefined" ? document.getElementById(id) : null;
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -299,16 +307,6 @@ export default function Home() {
                     className="inline-block text-sm font-medium text-violet-300 underline decoration-violet-700 underline-offset-4"
                   >
                     {job.linkLabel} →
-                  </a>
-                )}
-                {job.secondaryLink && (
-                  <a
-                    href={job.secondaryLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block text-sm font-medium text-cyan-300 underline decoration-cyan-700 underline-offset-4"
-                  >
-                    {job.secondaryLabel} →
                   </a>
                 )}
               </div>
